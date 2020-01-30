@@ -1,0 +1,144 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include<cctype>
+#include<iomanip>
+
+using namespace std;
+
+class Account{
+
+int accountNo;
+char name[50];
+int deposit;
+char type;
+
+public:
+    void createAccount();
+    void showAccount();
+    int returnAccountNo() const;
+    void modify();
+
+
+    };
+
+void Account :: createAccount(){
+    cout << "Please provide your new account number: " << endl;
+    cin >> accountNo;
+    cout << "Please provide your name: " << endl;
+    cin >> name;
+    cout << "Please provide account type (S/C): " << endl;
+    cin >> type;
+    type = toupper(type);
+    cout << "Provide amount of intial deposit: " << endl;
+    cin >> deposit;
+    cout << "Account created successfully!" << endl;
+};
+
+void Account :: showAccount(){
+    cout << "Account no: "<< accountNo <<endl;
+    cout << "Account name: " << name << endl;
+    cout << "Account type: " << type << endl;
+    cout << "Amount deposited: " << deposit << endl;
+
+};
+
+int Account:: returnAccountNo() const{
+    return accountNo;
+}
+
+void Account :: modify(){
+
+    cout<<"Account no: "<< accountNo;
+    cout<<"Modify account name to: ";
+    cin.ignore();
+    cin >> name;
+    cout<< "Modify account type.";
+    cin>>type;
+    type=toupper(type);
+    cout<< "Modify balance amount";
+    cin>>deposit;
+
+}
+
+
+//function declaration
+void writeAccount();
+void displayAccount(int);
+void modifyAccount(int);
+
+
+
+
+int main()
+{
+displayAccount(1);
+
+
+
+    return 0;
+}
+
+
+void writeAccount(){
+    Account newFile;
+    ofstream outFile;
+    outFile.open("list.txt" , ios::binary|ios::trunc);
+    newFile.createAccount();
+    outFile.write(reinterpret_cast<char *> (&newFile), sizeof(Account));
+    outFile.close();
+
+};
+
+void displayAccount(int n){
+    Account newFile;
+    bool flag=false;
+    ifstream inFile;
+    inFile.open("list.txt" , ios::binary);
+
+    if(!inFile){
+        cout << "File not found"<<endl;
+        return;
+    }
+    cout << "\nBalance details:\n";
+
+    while(inFile.read(reinterpret_cast<char *> (&newFile) , sizeof(Account))){
+
+        if(newFile.returnAccountNo() == n){
+        newFile.showAccount();
+        flag=true;
+    }}
+    inFile.close();
+    if(flag==false){
+        cout << "This account does not exist!";
+    }
+};
+
+    void modifyAccount(int n){
+
+        bool thing = false;
+        Account newFile;
+        fstream File;
+        File.open("list.txt" , ios::binary|ios::out|ios::in);
+        if(!File){
+            cout<<"File couldn't be opened!";
+            return;
+        }
+        while(!File.eof() && thing==false){
+            File.read(reinterpret_cast<char *> (&newFile), sizeof(Account));
+            if(newFile.returnAccountNo() == n){
+                newFile.showAccount();
+                cout<<"\nEnter new account details: \n"<<endl;
+                newFile.modify();
+                int pos=(-1)*static_cast<int>(sizeof(Account));
+                File.seekp(pos,ios::cur);
+                File.write(reinterpret_cast<char *> (&newFile), sizeof(Account));
+                cout<<"\n\n\t Record Updated";
+                thing=true;
+            }
+        }
+        File.close();
+        if(thing == false){
+            cout<< "Record not found";
+        }
+    };
